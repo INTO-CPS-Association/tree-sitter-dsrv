@@ -1,0 +1,31 @@
+{
+  "grammars": [
+    {
+      "name": "dsrv",
+      "camelcase": "DSRV",
+      "scope": "source.dsrv",
+      "path": ".",
+      "file-types": [
+        "dsrv"
+      ],
+      "highlights": "queries/highlights.scm"
+    }
+  ],
+  "metadata": {
+    "version": "0.1.0",
+    "license": "GPL-3.0-only",
+    "description": "Tree-sitter grammar for the DSRV language",
+    "authors": [
+      {
+        "name": "Thomas Wright",
+        "email": "tom.tdw@gmail.com"
+      }
+    ],
+    "links": {
+      "repository": "https://github.com/EmmiPigen/dsrv-vscode.git"
+    }
+  },
+  "bindings": {
+    "c": true
+  }
+}
