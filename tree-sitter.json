@@ -22,7 +22,7 @@
       }
     ],
     "links": {
-      "repository": "https://github.com/EmmiPigen/dsrv-vscode.git"
+      "repository": "https://github.com/INTO-CPS-Association/tree-sitter-dsrv.git"
     }
   },
   "bindings": {
