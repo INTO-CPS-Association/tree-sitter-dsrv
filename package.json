@@ -9,5 +9,6 @@
   },
   "devDependencies": {
     "tree-sitter-cli": "^0.26.8"
-  }
+  },
+  "license": "SEE LICENSE IN LICENSE.md"
 }
