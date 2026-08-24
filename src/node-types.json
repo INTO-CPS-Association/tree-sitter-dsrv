@@ -60,30 +60,78 @@
     "type": "call_expression",
     "named": true,
     "fields": {
+      "argument": {
+        "multiple": true,
+        "required": false,
+        "types": [
+          {
+            "type": "expression",
+            "named": true
+          },
+          {
+            "type": "map_entry",
+            "named": true
+          }
+        ]
+      },
       "function": {
         "multiple": false,
         "required": true,
         "types": [
           {
+            "type": "boolean",
+            "named": true
+          },
+          {
+            "type": "call_expression",
+            "named": true
+          },
+          {
+            "type": "dynamic_expression",
+            "named": true
+          },
+          {
             "type": "identifier",
+            "named": true
+          },
+          {
+            "type": "index_expression",
+            "named": true
+          },
+          {
+            "type": "lambda_expression",
+            "named": true
+          },
+          {
+            "type": "list_literal",
             "named": true
           },
           {
             "type": "member_expression",
             "named": true
+          },
+          {
+            "type": "number",
+            "named": true
+          },
+          {
+            "type": "object_literal",
+            "named": true
+          },
+          {
+            "type": "parenthesized_expression",
+            "named": true
+          },
+          {
+            "type": "string",
+            "named": true
+          },
+          {
+            "type": "unit",
+            "named": true
           }
         ]
       }
-    },
-    "children": {
-      "multiple": true,
-      "required": false,
-      "types": [
-        {
-          "type": "expression",
-          "named": true
-        }
-      ]
     }
   },
   {
@@ -135,6 +183,60 @@
     }
   },
   {
+    "type": "dynamic_expression",
+    "named": true,
+    "fields": {
+      "kind": {
+        "multiple": false,
+        "required": true,
+        "types": [
+          {
+            "type": "defer",
+            "named": false
+          },
+          {
+            "type": "dynamic",
+            "named": false
+          },
+          {
+            "type": "eval",
+            "named": false
+          }
+        ]
+      },
+      "scope": {
+        "multiple": false,
+        "required": false,
+        "types": [
+          {
+            "type": "variable_set",
+            "named": true
+          }
+        ]
+      },
+      "source": {
+        "multiple": false,
+        "required": true,
+        "types": [
+          {
+            "type": "expression",
+            "named": true
+          }
+        ]
+      },
+      "type": {
+        "multiple": false,
+        "required": false,
+        "types": [
+          {
+            "type": "type_annotation",
+            "named": true
+          }
+        ]
+      }
+    }
+  },
+  {
     "type": "expression",
     "named": true,
     "fields": {},
@@ -155,6 +257,10 @@
           "named": true
         },
         {
+          "type": "dynamic_expression",
+          "named": true
+        },
+        {
           "type": "identifier",
           "named": true
         },
@@ -164,6 +270,10 @@
         },
         {
           "type": "index_expression",
+          "named": true
+        },
+        {
+          "type": "lambda_expression",
           "named": true
         },
         {
@@ -193,16 +303,20 @@
         {
           "type": "unary_expression",
           "named": true
+        },
+        {
+          "type": "unit",
+          "named": true
         }
       ]
     }
   },
   {
-    "type": "generic_type",
+    "type": "function_type",
     "named": true,
     "fields": {
-      "argument": {
-        "multiple": true,
+      "parameter": {
+        "multiple": false,
         "required": true,
         "types": [
           {
@@ -210,15 +324,77 @@
             "named": true
           },
           {
+            "type": "function_type",
+            "named": true
+          },
+          {
             "type": "generic_type",
             "named": true
           },
           {
-            "type": "identifier",
+            "type": "struct_type",
+            "named": true
+          },
+          {
+            "type": "tuple_type",
+            "named": true
+          }
+        ]
+      },
+      "return": {
+        "multiple": false,
+        "required": true,
+        "types": [
+          {
+            "type": "builtin_type",
+            "named": true
+          },
+          {
+            "type": "function_type",
+            "named": true
+          },
+          {
+            "type": "generic_type",
             "named": true
           },
           {
             "type": "struct_type",
+            "named": true
+          },
+          {
+            "type": "tuple_type",
+            "named": true
+          }
+        ]
+      }
+    }
+  },
+  {
+    "type": "generic_type",
+    "named": true,
+    "fields": {
+      "argument": {
+        "multiple": false,
+        "required": true,
+        "types": [
+          {
+            "type": "builtin_type",
+            "named": true
+          },
+          {
+            "type": "function_type",
+            "named": true
+          },
+          {
+            "type": "generic_type",
+            "named": true
+          },
+          {
+            "type": "struct_type",
+            "named": true
+          },
+          {
+            "type": "tuple_type",
             "named": true
           }
         ]
@@ -234,10 +410,6 @@
           {
             "type": "Map",
             "named": false
-          },
-          {
-            "type": "identifier",
-            "named": true
           }
         ]
       }
@@ -288,7 +460,7 @@
         "required": true,
         "types": [
           {
-            "type": "expression",
+            "type": "integer",
             "named": true
           }
         ]
@@ -306,6 +478,89 @@
     }
   },
   {
+    "type": "lambda_expression",
+    "named": true,
+    "fields": {
+      "body": {
+        "multiple": false,
+        "required": true,
+        "types": [
+          {
+            "type": "expression",
+            "named": true
+          }
+        ]
+      },
+      "parameters": {
+        "multiple": false,
+        "required": true,
+        "types": [
+          {
+            "type": "lambda_parameters",
+            "named": true
+          }
+        ]
+      }
+    }
+  },
+  {
+    "type": "lambda_parameter",
+    "named": true,
+    "fields": {
+      "name": {
+        "multiple": false,
+        "required": true,
+        "types": [
+          {
+            "type": "identifier",
+            "named": true
+          }
+        ]
+      },
+      "type": {
+        "multiple": false,
+        "required": true,
+        "types": [
+          {
+            "type": "builtin_type",
+            "named": true
+          },
+          {
+            "type": "function_type",
+            "named": true
+          },
+          {
+            "type": "generic_type",
+            "named": true
+          },
+          {
+            "type": "struct_type",
+            "named": true
+          },
+          {
+            "type": "tuple_type",
+            "named": true
+          }
+        ]
+      }
+    }
+  },
+  {
+    "type": "lambda_parameters",
+    "named": true,
+    "fields": {},
+    "children": {
+      "multiple": true,
+      "required": true,
+      "types": [
+        {
+          "type": "lambda_parameter",
+          "named": true
+        }
+      ]
+    }
+  },
+  {
     "type": "list_literal",
     "named": true,
     "fields": {},
@@ -318,6 +573,32 @@
           "named": true
         }
       ]
+    }
+  },
+  {
+    "type": "map_entry",
+    "named": true,
+    "fields": {
+      "key": {
+        "multiple": false,
+        "required": true,
+        "types": [
+          {
+            "type": "string",
+            "named": true
+          }
+        ]
+      },
+      "value": {
+        "multiple": false,
+        "required": true,
+        "types": [
+          {
+            "type": "expression",
+            "named": true
+          }
+        ]
+      }
     }
   },
   {
@@ -341,6 +622,10 @@
           {
             "type": "identifier",
             "named": true
+          },
+          {
+            "type": "integer",
+            "named": true
           }
         ]
       }
@@ -356,10 +641,6 @@
         "types": [
           {
             "type": "identifier",
-            "named": true
-          },
-          {
-            "type": "number",
             "named": true
           },
           {
@@ -457,15 +738,19 @@
             "named": true
           },
           {
+            "type": "function_type",
+            "named": true
+          },
+          {
             "type": "generic_type",
             "named": true
           },
           {
-            "type": "identifier",
+            "type": "struct_type",
             "named": true
           },
           {
-            "type": "struct_type",
+            "type": "tuple_type",
             "named": true
           }
         ]
@@ -492,6 +777,38 @@
     }
   },
   {
+    "type": "tuple_type",
+    "named": true,
+    "fields": {
+      "element": {
+        "multiple": true,
+        "required": true,
+        "types": [
+          {
+            "type": "builtin_type",
+            "named": true
+          },
+          {
+            "type": "function_type",
+            "named": true
+          },
+          {
+            "type": "generic_type",
+            "named": true
+          },
+          {
+            "type": "struct_type",
+            "named": true
+          },
+          {
+            "type": "tuple_type",
+            "named": true
+          }
+        ]
+      }
+    }
+  },
+  {
     "type": "type_annotation",
     "named": true,
     "fields": {
@@ -504,15 +821,19 @@
             "named": true
           },
           {
+            "type": "function_type",
+            "named": true
+          },
+          {
             "type": "generic_type",
             "named": true
           },
           {
-            "type": "identifier",
+            "type": "struct_type",
             "named": true
           },
           {
-            "type": "struct_type",
+            "type": "tuple_type",
             "named": true
           }
         ]
@@ -550,11 +871,27 @@
     }
   },
   {
-    "type": "!",
-    "named": false
+    "type": "unit",
+    "named": true,
+    "fields": {}
   },
   {
-    "type": "!=",
+    "type": "variable_set",
+    "named": true,
+    "fields": {},
+    "children": {
+      "multiple": true,
+      "required": false,
+      "types": [
+        {
+          "type": "identifier",
+          "named": true
+        }
+      ]
+    }
+  },
+  {
+    "type": "!",
     "named": false
   },
   {
@@ -591,6 +928,10 @@
   },
   {
     "type": "-",
+    "named": false
+  },
+  {
+    "type": "->",
     "named": false
   },
   {
@@ -650,6 +991,10 @@
     "named": false
   },
   {
+    "type": "\\",
+    "named": false
+  },
+  {
     "type": "]",
     "named": false
   },
@@ -658,8 +1003,21 @@
     "named": false
   },
   {
+    "type": "block_comment",
+    "named": true,
+    "extra": true
+  },
+  {
     "type": "builtin_type",
     "named": true
+  },
+  {
+    "type": "defer",
+    "named": false
+  },
+  {
+    "type": "dynamic",
+    "named": false
   },
   {
     "type": "ellipsis",
@@ -667,6 +1025,10 @@
   },
   {
     "type": "else",
+    "named": false
+  },
+  {
+    "type": "eval",
     "named": false
   },
   {
@@ -684,6 +1046,10 @@
   {
     "type": "in",
     "named": false
+  },
+  {
+    "type": "integer",
+    "named": true
   },
   {
     "type": "line_comment",

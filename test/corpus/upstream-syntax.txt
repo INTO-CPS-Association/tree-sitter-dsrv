@@ -1,0 +1,455 @@
+==================
+upstream declarations and types
+==================
+(* block comments are part of current DSRV syntax *)
+in source: List<Struct<x: Float, y: Float>>
+in open: Struct<event: Str, uid: Str, ...>
+in callback: (Int -> Int)
+out result: (Int, List<Int>, Struct<x: Float>)
+aux dynamic_value: Any
+---
+
+(source_file
+  (block_comment)
+  (declaration
+    (identifier)
+    (type_annotation
+      (generic_type
+        (struct_type
+          (struct_field_type
+            (identifier)
+            (builtin_type))
+          (struct_field_type
+            (identifier)
+            (builtin_type))))))
+  (declaration
+    (identifier)
+    (type_annotation
+      (struct_type
+        (struct_field_type
+          (identifier)
+          (builtin_type))
+        (struct_field_type
+          (identifier)
+          (builtin_type))
+        (ellipsis))))
+  (declaration
+    (identifier)
+    (type_annotation
+      (function_type
+        (builtin_type)
+        (builtin_type))))
+  (declaration
+    (identifier)
+    (type_annotation
+      (tuple_type
+        (builtin_type)
+        (generic_type
+          (builtin_type))
+        (struct_type
+          (struct_field_type
+            (identifier)
+            (builtin_type))))))
+  (declaration
+    (identifier)
+    (type_annotation
+      (builtin_type))))
+
+==================
+upstream containers and access
+==================
+in x: Int
+in flag: Bool
+in point: Struct<x: Float, y: Float>
+out value: Int
+value = List(List(x, x + 1))
+value = Map("flags": List(flag, !flag))
+value = Tuple(value, flag)
+value = Struct("x": value)
+value = {"x": value, point: point.x}
+value = value[1]
+value = point.0
+value = point.x ++ "abc"
+value = List.head(List(value))(0)
+---
+
+(source_file
+  (declaration
+    (identifier)
+    (type_annotation
+      (builtin_type)))
+  (declaration
+    (identifier)
+    (type_annotation
+      (builtin_type)))
+  (declaration
+    (identifier)
+    (type_annotation
+      (struct_type
+        (struct_field_type
+          (identifier)
+          (builtin_type))
+        (struct_field_type
+          (identifier)
+          (builtin_type)))))
+  (declaration
+    (identifier)
+    (type_annotation
+      (builtin_type)))
+  (assignment
+    (identifier)
+    (expression
+      (call_expression
+        (identifier)
+        (expression
+          (call_expression
+            (identifier)
+            (expression
+              (identifier))
+            (expression
+              (binary_expression
+                (expression
+                  (identifier))
+                (expression
+                  (number)))))))))
+  (assignment
+    (identifier)
+    (expression
+      (call_expression
+        (identifier)
+        (map_entry
+          (string)
+          (expression
+            (call_expression
+              (identifier)
+              (expression
+                (identifier))
+              (expression
+                (unary_expression
+                  (expression
+                    (identifier))))))))))
+  (assignment
+    (identifier)
+    (expression
+      (call_expression
+        (identifier)
+        (expression
+          (identifier))
+        (expression
+          (identifier)))))
+  (assignment
+    (identifier)
+    (expression
+      (call_expression
+        (identifier)
+        (map_entry
+          (string)
+          (expression
+            (identifier))))))
+  (assignment
+    (identifier)
+    (expression
+      (object_literal
+        (object_entry
+          (string)
+          (expression
+            (identifier)))
+        (object_entry
+          (identifier)
+          (expression
+            (member_expression
+              (expression
+                (identifier))
+              (identifier)))))))
+  (assignment
+    (identifier)
+    (expression
+      (index_expression
+        (expression
+          (identifier))
+        (integer))))
+  (assignment
+    (identifier)
+    (expression
+      (member_expression
+        (expression
+          (identifier))
+        (integer))))
+  (assignment
+    (identifier)
+    (expression
+      (binary_expression
+        (expression
+          (member_expression
+            (expression
+              (identifier))
+            (identifier)))
+        (expression
+          (string)))))
+  (assignment
+    (identifier)
+    (expression
+      (call_expression
+        (call_expression
+          (member_expression
+            (expression
+              (identifier))
+            (identifier))
+          (expression
+            (call_expression
+              (identifier)
+              (expression
+                (identifier)))))
+        (expression
+          (number))))))
+
+==================
+upstream lambdas and higher-order calls
+==================
+in samples: List<Int>
+in bias: Int
+out doubled: List<Int>
+out total: Int
+doubled = List.map(\x: Int -> x * 2, samples)
+total = List.fold(\acc: Int, x: Int -> acc + x, 0, samples)
+total = (\value: Int -> value + bias)(total)
+---
+
+(source_file
+  (declaration
+    (identifier)
+    (type_annotation
+      (generic_type
+        (builtin_type))))
+  (declaration
+    (identifier)
+    (type_annotation
+      (builtin_type)))
+  (declaration
+    (identifier)
+    (type_annotation
+      (generic_type
+        (builtin_type))))
+  (declaration
+    (identifier)
+    (type_annotation
+      (builtin_type)))
+  (assignment
+    (identifier)
+    (expression
+      (call_expression
+        (member_expression
+          (expression
+            (identifier))
+          (identifier))
+        (expression
+          (lambda_expression
+            (lambda_parameters
+              (lambda_parameter
+                (identifier)
+                (builtin_type)))
+            (expression
+              (binary_expression
+                (expression
+                  (identifier))
+                (expression
+                  (number))))))
+        (expression
+          (identifier)))))
+  (assignment
+    (identifier)
+    (expression
+      (call_expression
+        (member_expression
+          (expression
+            (identifier))
+          (identifier))
+        (expression
+          (lambda_expression
+            (lambda_parameters
+              (lambda_parameter
+                (identifier)
+                (builtin_type))
+              (lambda_parameter
+                (identifier)
+                (builtin_type)))
+            (expression
+              (binary_expression
+                (expression
+                  (identifier))
+                (expression
+                  (identifier))))))
+        (expression
+          (number))
+        (expression
+          (identifier)))))
+  (assignment
+    (identifier)
+    (expression
+      (call_expression
+        (parenthesized_expression
+          (expression
+            (lambda_expression
+              (lambda_parameters
+                (lambda_parameter
+                  (identifier)
+                  (builtin_type)))
+              (expression
+                (binary_expression
+                  (expression
+                    (identifier))
+                  (expression
+                    (identifier)))))))
+        (expression
+          (identifier))))))
+
+==================
+upstream dynamic scopes and builtins
+==================
+in x: Int
+in flag: Bool
+out value: Int
+value = dynamic(x: Int, {x, flag})
+value = eval(x)
+value = defer(x: Int)
+value = update(value, x[1])
+value = default(value, false)
+value = monitored_at(value, "node-a")
+value = dist("left", right)
+value = if flag then value else -value
+---
+
+(source_file
+  (declaration
+    (identifier)
+    (type_annotation
+      (builtin_type)))
+  (declaration
+    (identifier)
+    (type_annotation
+      (builtin_type)))
+  (declaration
+    (identifier)
+    (type_annotation
+      (builtin_type)))
+  (assignment
+    (identifier)
+    (expression
+      (dynamic_expression
+        (expression
+          (identifier))
+        (type_annotation
+          (builtin_type))
+        (variable_set
+          (identifier)
+          (identifier)))))
+  (assignment
+    (identifier)
+    (expression
+      (dynamic_expression
+        (expression
+          (identifier)))))
+  (assignment
+    (identifier)
+    (expression
+      (dynamic_expression
+        (expression
+          (identifier))
+        (type_annotation
+          (builtin_type)))))
+  (assignment
+    (identifier)
+    (expression
+      (call_expression
+        (identifier)
+        (expression
+          (identifier))
+        (expression
+          (index_expression
+            (expression
+              (identifier))
+            (integer))))))
+  (assignment
+    (identifier)
+    (expression
+      (call_expression
+        (identifier)
+        (expression
+          (identifier))
+        (expression
+          (boolean)))))
+  (assignment
+    (identifier)
+    (expression
+      (call_expression
+        (identifier)
+        (expression
+          (identifier))
+        (expression
+          (string)))))
+  (assignment
+    (identifier)
+    (expression
+      (call_expression
+        (identifier)
+        (expression
+          (string))
+        (expression
+          (identifier)))))
+  (assignment
+    (identifier)
+    (expression
+      (if_expression
+        (expression
+          (identifier))
+        (expression
+          (identifier))
+        (expression
+          (unary_expression
+            (expression
+              (identifier))))))))
+
+==================
+current literals and comments
+==================
+in x
+out float_value
+out bool_value
+out unit_value
+out text
+float_value = -1.0e-2 // line comments remain ignored
+bool_value = true
+unit_value = ()
+text = "escaped\\nquote\\\""
+---
+
+(source_file
+  (declaration
+    (identifier))
+  (declaration
+    (identifier))
+  (declaration
+    (identifier))
+  (declaration
+    (identifier))
+  (declaration
+    (identifier))
+  (assignment
+    (identifier)
+    (expression
+      (unary_expression
+        (expression
+          (number)))))
+  (line_comment)
+  (assignment
+    (identifier)
+    (expression
+      (boolean)))
+  (assignment
+    (identifier)
+    (expression
+      (unit)))
+  (assignment
+    (identifier)
+    (expression
+      (string))))
