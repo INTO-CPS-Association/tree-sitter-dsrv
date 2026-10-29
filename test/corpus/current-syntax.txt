@@ -1,0 +1,587 @@
+==================
+current headers
+==================
+language dsrv
+use experimental::{casts, tagged_unions, pattern_matching}
+use std::option::{self, Option, Some, None}
+use util::*
+mod store
+mod nested::deeper
+---
+
+(source_file
+  (language_declaration
+    (identifier))
+  (use_declaration
+    (scoped_use_list
+      (identifier)
+      (use_list
+        (identifier)
+        (identifier)
+        (identifier))))
+  (use_declaration
+    (scoped_use_list
+      (scoped_identifier
+        (identifier)
+        (identifier))
+      (use_list
+        (identifier)
+        (identifier)
+        (identifier)
+        (identifier))))
+  (use_declaration
+    (use_wildcard
+      (identifier)))
+  (mod_declaration
+    (identifier))
+  (mod_declaration
+    (scoped_identifier
+      (identifier)
+      (identifier))))
+
+==================
+current definitions
+==================
+use experimental::{tagged_unions}
+type State = Union<Stopped, Moving: Int,>
+internal type Pair<A, B> = (A, B)
+type Reading = Struct<"raw name": Float, value: Int, ...>
+type Lazy<T> = Expr<T>
+const limit: Int = 3
+internal const scale: Float = 2.5
+def clamp(x: Int, hi: Int) -> Int = if x > hi then hi else x
+internal def id<T>(x: T) -> T = x
+in x: Int
+in pair: Pair<Int, Option<Int>>
+out state: State = Moving(x)
+aux doubled = clamp(x, limit) * 2
+var tmp: Int
+tmp = x[limit]
+---
+
+(source_file
+  (use_declaration
+    (scoped_use_list
+      (identifier)
+      (use_list
+        (identifier))))
+  (type_alias
+    (identifier)
+    (union_type
+      (union_alternative
+        (identifier))
+      (union_alternative
+        (identifier)
+        (builtin_type))))
+  (type_alias
+    (visibility_modifier)
+    (identifier)
+    (type_parameters
+      (identifier)
+      (identifier))
+    (tuple_type
+      (named_type
+        (identifier))
+      (named_type
+        (identifier))))
+  (type_alias
+    (identifier)
+    (struct_type
+      (struct_field_type
+        (string)
+        (builtin_type))
+      (struct_field_type
+        (identifier)
+        (builtin_type))
+      (ellipsis)))
+  (type_alias
+    (identifier)
+    (type_parameters
+      (identifier))
+    (generic_type
+      (named_type
+        (identifier))))
+  (const_declaration
+    (identifier)
+    (builtin_type)
+    (expression
+      (number)))
+  (const_declaration
+    (visibility_modifier)
+    (identifier)
+    (builtin_type)
+    (expression
+      (number)))
+  (function_definition
+    (identifier)
+    (parameters
+      (parameter
+        (identifier)
+        (builtin_type))
+      (parameter
+        (identifier)
+        (builtin_type)))
+    (builtin_type)
+    (expression
+      (if_expression
+        (expression
+          (binary_expression
+            (expression
+              (identifier))
+            (expression
+              (identifier))))
+        (expression
+          (identifier))
+        (expression
+          (identifier)))))
+  (function_definition
+    (visibility_modifier)
+    (identifier)
+    (type_parameters
+      (identifier))
+    (parameters
+      (parameter
+        (identifier)
+        (named_type
+          (identifier))))
+    (named_type
+      (identifier))
+    (expression
+      (identifier)))
+  (declaration
+    (identifier)
+    (type_annotation
+      (builtin_type)))
+  (declaration
+    (identifier)
+    (type_annotation
+      (named_type
+        (identifier)
+        (type_arguments
+          (builtin_type)
+          (named_type
+            (identifier)
+            (type_arguments
+              (builtin_type)))))))
+  (declaration
+    (identifier)
+    (type_annotation
+      (named_type
+        (identifier)))
+    (expression
+      (call_expression
+        (identifier)
+        (expression
+          (identifier)))))
+  (declaration
+    (identifier)
+    (expression
+      (binary_expression
+        (expression
+          (call_expression
+            (identifier)
+            (expression
+              (identifier))
+            (expression
+              (identifier))))
+        (expression
+          (number)))))
+  (declaration
+    (identifier)
+    (type_annotation
+      (builtin_type)))
+  (assignment
+    (identifier)
+    (expression
+      (index_expression
+        (expression
+          (identifier))
+        (identifier)))))
+
+==================
+current operators
+==================
+use experimental::{casts}
+in x: Int
+in y: Float
+in b: Bool
+out p = x ** 2 ** 3
+out q = -x ** 2
+out r = (x as Float) * y
+out s = x as Int as Float
+out t = not b and x != 3 or b
+out u = {x, total: x + 1}
+out v = \a, c: Int -> a + c
+---
+
+(source_file
+  (use_declaration
+    (scoped_use_list
+      (identifier)
+      (use_list
+        (identifier))))
+  (declaration
+    (identifier)
+    (type_annotation
+      (builtin_type)))
+  (declaration
+    (identifier)
+    (type_annotation
+      (builtin_type)))
+  (declaration
+    (identifier)
+    (type_annotation
+      (builtin_type)))
+  (declaration
+    (identifier)
+    (expression
+      (binary_expression
+        (expression
+          (identifier))
+        (expression
+          (binary_expression
+            (expression
+              (number))
+            (expression
+              (number)))))))
+  (declaration
+    (identifier)
+    (expression
+      (unary_expression
+        (expression
+          (binary_expression
+            (expression
+              (identifier))
+            (expression
+              (number)))))))
+  (declaration
+    (identifier)
+    (expression
+      (binary_expression
+        (expression
+          (parenthesized_expression
+            (expression
+              (cast_expression
+                (expression
+                  (identifier))
+                (builtin_type)))))
+        (expression
+          (identifier)))))
+  (declaration
+    (identifier)
+    (expression
+      (cast_expression
+        (expression
+          (cast_expression
+            (expression
+              (identifier))
+            (builtin_type)))
+        (builtin_type))))
+  (declaration
+    (identifier)
+    (expression
+      (binary_expression
+        (expression
+          (binary_expression
+            (expression
+              (unary_expression
+                (expression
+                  (identifier))))
+            (expression
+              (binary_expression
+                (expression
+                  (identifier))
+                (expression
+                  (number))))))
+        (expression
+          (identifier)))))
+  (declaration
+    (identifier)
+    (expression
+      (object_literal
+        (object_entry
+          (identifier))
+        (object_entry
+          (identifier)
+          (expression
+            (binary_expression
+              (expression
+                (identifier))
+              (expression
+                (number))))))))
+  (declaration
+    (identifier)
+    (expression
+      (lambda_expression
+        (lambda_parameters
+          (lambda_parameter
+            (identifier))
+          (lambda_parameter
+            (identifier)
+            (builtin_type)))
+        (expression
+          (binary_expression
+            (expression
+              (identifier))
+            (expression
+              (identifier))))))))
+
+==================
+current patterns
+==================
+use experimental::{tagged_unions, pattern_matching}
+type State = Union<Stopped, Moving: Int, Turning: (Int, Int)>
+in s: State
+in n: Int
+in l: List<Int>
+in p: Struct<a: Int, b: Str>
+out speed: Int = match (s) {
+  Stopped -> 0,
+  Moving(v) if v > 10 -> 10,
+  Moving(v) -> v,
+  Turning((a, _)) | Turning((_, a)) -> a,
+}
+out band: Str = match (n,) {
+  -5..0 -> "negative",
+  0 -> "zero",
+  1..=9 -> "small",
+  whole @ _ -> "large",
+}
+out shape: Bool = match (l) {
+  [] -> true,
+  [x, y] -> x == y,
+  _ -> false
+}
+out field: Int = match (p) {
+  {a: 1, ..} -> 1,
+  {a, b: "x"} -> a,
+  {..} -> 0,
+}
+out stopped: Bool = matches(s, Stopped | Moving(0))
+out fast: Bool = matches(s, Moving(v) if v > 5,)
+out tagged: State = State::Moving(n)
+---
+
+(source_file
+  (use_declaration
+    (scoped_use_list
+      (identifier)
+      (use_list
+        (identifier)
+        (identifier))))
+  (type_alias
+    (identifier)
+    (union_type
+      (union_alternative
+        (identifier))
+      (union_alternative
+        (identifier)
+        (builtin_type))
+      (union_alternative
+        (identifier)
+        (tuple_type
+          (builtin_type)
+          (builtin_type)))))
+  (declaration
+    (identifier)
+    (type_annotation
+      (named_type
+        (identifier))))
+  (declaration
+    (identifier)
+    (type_annotation
+      (builtin_type)))
+  (declaration
+    (identifier)
+    (type_annotation
+      (generic_type
+        (builtin_type))))
+  (declaration
+    (identifier)
+    (type_annotation
+      (struct_type
+        (struct_field_type
+          (identifier)
+          (builtin_type))
+        (struct_field_type
+          (identifier)
+          (builtin_type)))))
+  (declaration
+    (identifier)
+    (type_annotation
+      (builtin_type))
+    (expression
+      (match_expression
+        (expression
+          (identifier))
+        (match_arm
+          (identifier)
+          (expression
+            (number)))
+        (match_arm
+          (tag_pattern
+            (identifier)
+            (identifier))
+          (expression
+            (binary_expression
+              (expression
+                (identifier))
+              (expression
+                (number))))
+          (expression
+            (number)))
+        (match_arm
+          (tag_pattern
+            (identifier)
+            (identifier))
+          (expression
+            (identifier)))
+        (match_arm
+          (or_pattern
+            (tag_pattern
+              (identifier)
+              (tuple_pattern
+                (identifier)
+                (identifier)))
+            (tag_pattern
+              (identifier)
+              (tuple_pattern
+                (identifier)
+                (identifier))))
+          (expression
+            (identifier))))))
+  (declaration
+    (identifier)
+    (type_annotation
+      (builtin_type))
+    (expression
+      (match_expression
+        (expression
+          (identifier))
+        (match_arm
+          (range_pattern
+            (pattern_integer
+              (integer))
+            (pattern_integer
+              (integer)))
+          (expression
+            (string)))
+        (match_arm
+          (pattern_integer
+            (integer))
+          (expression
+            (string)))
+        (match_arm
+          (range_pattern
+            (pattern_integer
+              (integer))
+            (pattern_integer
+              (integer)))
+          (expression
+            (string)))
+        (match_arm
+          (as_pattern
+            (identifier)
+            (identifier))
+          (expression
+            (string))))))
+  (declaration
+    (identifier)
+    (type_annotation
+      (builtin_type))
+    (expression
+      (match_expression
+        (expression
+          (identifier))
+        (match_arm
+          (list_pattern)
+          (expression
+            (boolean)))
+        (match_arm
+          (list_pattern
+            (identifier)
+            (identifier))
+          (expression
+            (binary_expression
+              (expression
+                (identifier))
+              (expression
+                (identifier)))))
+        (match_arm
+          (identifier)
+          (expression
+            (boolean))))))
+  (declaration
+    (identifier)
+    (type_annotation
+      (builtin_type))
+    (expression
+      (match_expression
+        (expression
+          (identifier))
+        (match_arm
+          (struct_pattern
+            (struct_pattern_field
+              (identifier)
+              (pattern_integer
+                (integer)))
+            (rest_pattern))
+          (expression
+            (number)))
+        (match_arm
+          (struct_pattern
+            (struct_pattern_field
+              (identifier))
+            (struct_pattern_field
+              (identifier)
+              (string)))
+          (expression
+            (identifier)))
+        (match_arm
+          (struct_pattern
+            (rest_pattern))
+          (expression
+            (number))))))
+  (declaration
+    (identifier)
+    (type_annotation
+      (builtin_type))
+    (expression
+      (matches_expression
+        (expression
+          (identifier))
+        (or_pattern
+          (identifier)
+          (tag_pattern
+            (identifier)
+            (pattern_integer
+              (integer)))))))
+  (declaration
+    (identifier)
+    (type_annotation
+      (builtin_type))
+    (expression
+      (matches_expression
+        (expression
+          (identifier))
+        (tag_pattern
+          (identifier)
+          (identifier))
+        (expression
+          (binary_expression
+            (expression
+              (identifier))
+            (expression
+              (number)))))))
+  (declaration
+    (identifier)
+    (type_annotation
+      (named_type
+        (identifier)))
+    (expression
+      (call_expression
+        (scoped_identifier
+          (identifier)
+          (identifier))
+        (expression
+          (identifier))))))

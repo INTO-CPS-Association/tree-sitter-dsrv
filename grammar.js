@@ -8,10 +8,16 @@ const PREC = {
   comparison: 7,
   additive: 8,
   multiplicative: 9,
-  unary: 10,
-  member: 11,
-  call: 12,
+  cast: 10,
+  unary: 11,
+  power: 12,
+  member: 13,
+  call: 14,
 };
+
+const commaSep = rule => optional(commaSep1(rule));
+
+const commaSep1 = rule => seq(rule, repeat(seq(",", rule)), optional(","));
 
 module.exports = grammar({
   name: "dsrv",
@@ -28,15 +34,128 @@ module.exports = grammar({
     source_file: $ => repeat($._statement),
 
     _statement: $ => choice(
+      $.language_declaration,
+      $.use_declaration,
+      $.mod_declaration,
+      $.type_alias,
+      $.function_definition,
+      $.const_declaration,
       $.declaration,
       $.assignment,
       $.expression,
+    ),
+
+    // Module headers
+
+    language_declaration: $ => seq(
+      "language",
+      field("name", $.identifier),
+    ),
+
+    use_declaration: $ => seq(
+      "use",
+      field("tree", $._use_tree),
+    ),
+
+    _use_tree: $ => choice(
+      $.identifier,
+      $.scoped_identifier,
+      $.use_wildcard,
+      $.scoped_use_list,
+    ),
+
+    use_wildcard: $ => seq(
+      field("path", $._path),
+      "::",
+      "*",
+    ),
+
+    scoped_use_list: $ => seq(
+      field("path", $._path),
+      "::",
+      field("list", $.use_list),
+    ),
+
+    use_list: $ => seq(
+      "{",
+      commaSep($._use_tree),
+      "}",
+    ),
+
+    mod_declaration: $ => seq(
+      "mod",
+      field("path", $._path),
+    ),
+
+    _path: $ => choice(
+      $.identifier,
+      $.scoped_identifier,
+    ),
+
+    scoped_identifier: $ => seq(
+      field("path", $._path),
+      "::",
+      field("name", $.identifier),
+    ),
+
+    // Definitions
+
+    visibility_modifier: _ => "internal",
+
+    type_alias: $ => seq(
+      optional($.visibility_modifier),
+      "type",
+      field("name", $.identifier),
+      optional(field("type_parameters", $.type_parameters)),
+      "=",
+      field("type", $._type),
+    ),
+
+    type_parameters: $ => seq(
+      "<",
+      commaSep($.identifier),
+      ">",
+    ),
+
+    function_definition: $ => seq(
+      optional($.visibility_modifier),
+      "def",
+      field("name", $.identifier),
+      optional(field("type_parameters", $.type_parameters)),
+      field("parameters", $.parameters),
+      "->",
+      field("return_type", $._type),
+      "=",
+      field("body", $.expression),
+    ),
+
+    parameters: $ => seq(
+      "(",
+      commaSep($.parameter),
+      ")",
+    ),
+
+    parameter: $ => seq(
+      field("name", $.identifier),
+      ":",
+      field("type", $._type),
+    ),
+
+    const_declaration: $ => seq(
+      optional($.visibility_modifier),
+      "const",
+      field("name", $.identifier),
+      ":",
+      field("type", $._type),
+      "=",
+      field("value", $.expression),
     ),
 
     declaration: $ => seq(
       field("kind", choice("in", "out", "aux", "var")),
       field("name", $.identifier),
       optional($.type_annotation),
+      optional(seq("=", field("value", $.expression))),
     ),
 
     type_annotation: $ => seq(
@@ -44,9 +163,13 @@ module.exports = grammar({
       field("type", $._type),
     ),
 
+    // Types
+
     _type: $ => choice(
       $.struct_type,
+      $.union_type,
       $.generic_type,
+      $.named_type,
       $.tuple_type,
       $.function_type,
       $.builtin_type,
@@ -56,26 +179,51 @@ module.exports = grammar({
       "Struct",
       "<",
       optional(choice(
-        $.ellipsis,
+        seq($.ellipsis, optional(",")),
         seq(
           $.struct_field_type,
           repeat(seq(",", $.struct_field_type)),
           optional(seq(",", $.ellipsis)),
+          optional(","),
         ),
       )),
       ">",
     ),
 
     struct_field_type: $ => seq(
-      field("name", $.identifier),
+      field("name", choice($.identifier, $.string)),
       ":",
       field("type", $._type),
     ),
 
+    union_type: $ => seq(
+      "Union",
+      "<",
+      commaSep($.union_alternative),
+      ">",
+    ),
+
+    union_alternative: $ => seq(
+      field("tag", $.identifier),
+      optional(seq(":", field("payload", $._type))),
+    ),
+
     generic_type: $ => seq(
-      field("constructor", choice("List", "Map")),
+      field("constructor", choice("List", "Map", "Expr")),
       "<",
       field("argument", $._type),
+      optional(","),
+      ">",
+    ),
+
+    named_type: $ => seq(
+      field("name", $._path),
+      optional(field("arguments", $.type_arguments)),
+    ),
+
+    type_arguments: $ => seq(
+      "<",
+      commaSep($._type),
       ">",
     ),
 
@@ -92,6 +240,7 @@ module.exports = grammar({
         ",",
         field("element", $._type),
         repeat(seq(",", field("element", $._type))),
+        optional(","),
         ")",
       ),
     ),
@@ -104,6 +253,8 @@ module.exports = grammar({
       ")",
     ),
 
+    // Statements and expressions
+
     assignment: $ => seq(
       field("left", $.identifier),
       "=",
@@ -115,13 +266,17 @@ module.exports = grammar({
       $.lambda_expression,
       $.binary_expression,
       $.unary_expression,
+      $.cast_expression,
       $.dynamic_expression,
+      $.match_expression,
+      $.matches_expression,
       $.call_expression,
       $.index_expression,
       $.member_expression,
       $.parenthesized_expression,
       $.object_literal,
       $.list_literal,
+      $.scoped_identifier,
       $.identifier,
       $.boolean,
       $.number,
@@ -144,24 +299,24 @@ module.exports = grammar({
         "++",
         field("right", $.expression),
       )),
-      prec.right(PREC.implication, seq(
+      prec.left(PREC.implication, seq(
         field("left", $.expression),
         "=>",
         field("right", $.expression),
       )),
       prec.left(PREC.or, seq(
         field("left", $.expression),
-        "||",
+        choice("||", "or"),
         field("right", $.expression),
       )),
       prec.left(PREC.and, seq(
         field("left", $.expression),
-        "&&",
+        choice("&&", "and"),
         field("right", $.expression),
       )),
       prec.left(PREC.equality, seq(
         field("left", $.expression),
-        "==",
+        choice("==", "!="),
         field("right", $.expression),
       )),
       prec.left(PREC.comparison, seq(
@@ -179,12 +334,27 @@ module.exports = grammar({
         choice("*", "/", "%"),
         field("right", $.expression),
       )),
+      prec.right(PREC.power, seq(
+        field("left", $.expression),
+        "**",
+        field("right", $.expression),
+      )),
     ),
 
     unary_expression: $ => prec(PREC.unary, seq(
-      field("operator", choice("!", "-")),
+      field("operator", choice("!", "-", "not")),
       field("argument", $.expression),
     )),
+
+    // Only a scalar type or a type name can be the target of a cast, so
+    // `x as T < y` stays a comparison.
+    cast_expression: $ => prec.left(PREC.cast, seq(
+      field("value", $.expression),
+      "as",
+      field("type", choice($.builtin_type, $.named_type_reference)),
+    )),
+
+    named_type_reference: $ => $._path,
 
     lambda_expression: $ => prec.right(seq(
       "\\",
@@ -200,8 +370,7 @@ module.exports = grammar({
 
     lambda_parameter: $ => seq(
       field("name", $.identifier),
-      ":",
-      field("type", $._type),
+      optional(seq(":", field("type", $._type))),
     ),
 
     dynamic_expression: $ => prec(PREC.call, seq(
@@ -210,25 +379,55 @@ module.exports = grammar({
       field("source", $.expression),
       optional(field("type", $.type_annotation)),
       optional(seq(",", field("scope", $.variable_set))),
+      optional(","),
       ")",
     )),
 
     variable_set: $ => seq(
       "{",
-      optional(seq(
-        $.identifier,
-        repeat(seq(",", $.identifier)),
-      )),
+      commaSep($.identifier),
       "}",
+    ),
+
+    match_expression: $ => seq(
+      "match",
+      "(",
+      field("value", $.expression),
+      optional(","),
+      ")",
+      "{",
+      commaSep($.match_arm),
+      "}",
+    ),
+
+    match_arm: $ => seq(
+      field("pattern", $._pattern),
+      optional(seq("if", field("guard", $.expression))),
+      "->",
+      field("body", $.expression),
+    ),
+
+    matches_expression: $ => seq(
+      "matches",
+      "(",
+      field("value", $.expression),
+      ",",
+      field("pattern", $._pattern),
+      optional(seq("if", field("guard", $.expression))),
+      optional(","),
+      ")",
     ),
 
     call_expression: $ => prec.left(PREC.call, seq(
       field("function", choice(
         $.identifier,
+        $.scoped_identifier,
         $.member_expression,
         $.parenthesized_expression,
         $.lambda_expression,
         $.dynamic_expression,
+        $.match_expression,
+        $.matches_expression,
         $.call_expression,
         $.index_expression,
         $.list_literal,
@@ -255,7 +454,7 @@ module.exports = grammar({
     index_expression: $ => prec.left(PREC.member, seq(
       field("value", $.expression),
       "[",
-      field("index", $.integer),
+      field("index", choice($.integer, $.identifier, $.scoped_identifier)),
       "]",
     )),
 
@@ -273,26 +472,24 @@ module.exports = grammar({
 
     list_literal: $ => seq(
       "[",
-      optional(seq(
-        $.expression,
-        repeat(seq(",", $.expression)),
-      )),
+      commaSep($.expression),
       "]",
     ),
 
     object_literal: $ => seq(
       "{",
-      optional(seq(
-        $.object_entry,
-        repeat(seq(",", $.object_entry)),
-      )),
+      commaSep($.object_entry),
       "}",
     ),
 
-    object_entry: $ => seq(
-      field("key", choice($.identifier, $.string)),
-      ":",
-      field("value", $.expression),
+    // `{ a }` is shorthand for `{ a: a }`.
+    object_entry: $ => choice(
+      seq(
+        field("key", choice($.identifier, $.string)),
+        ":",
+        field("value", $.expression),
+      ),
+      field("key", $.identifier),
     ),
 
     map_entry: $ => seq(
@@ -301,23 +498,117 @@ module.exports = grammar({
       field("value", $.expression),
     ),
 
+    // Patterns
+
+    _pattern: $ => choice(
+      $.or_pattern,
+      $._pattern_primary,
+    ),
+
+    or_pattern: $ => prec.left(seq(
+      $._pattern,
+      "|",
+      $._pattern,
+    )),
+
+    _pattern_primary: $ => choice(
+      $.identifier,
+      $.as_pattern,
+      $.tag_pattern,
+      $.tuple_pattern,
+      $.list_pattern,
+      $.struct_pattern,
+      $.range_pattern,
+      $.pattern_integer,
+      $.string,
+      $.boolean,
+      $.unit,
+    ),
+
+    as_pattern: $ => seq(
+      field("name", $.identifier),
+      "@",
+      field("pattern", $._pattern_primary),
+    ),
+
+    tag_pattern: $ => seq(
+      field("tag", $.identifier),
+      "(",
+      field("payload", $._pattern),
+      optional(","),
+      ")",
+    ),
+
+    tuple_pattern: $ => seq(
+      "(",
+      repeat1(seq($._pattern, ",")),
+      optional($._pattern),
+      ")",
+    ),
+
+    list_pattern: $ => seq(
+      "[",
+      commaSep($._pattern),
+      "]",
+    ),
+
+    struct_pattern: $ => seq(
+      "{",
+      optional(choice(
+        seq($.rest_pattern, optional(",")),
+        seq(
+          $.struct_pattern_field,
+          repeat(seq(",", $.struct_pattern_field)),
+          optional(seq(",", $.rest_pattern)),
+          optional(","),
+        ),
+      )),
+      "}",
+    ),
+
+    struct_pattern_field: $ => choice(
+      seq(
+        field("name", $.identifier),
+        ":",
+        field("pattern", $._pattern),
+      ),
+      field("name", $.identifier),
+    ),
+
+    rest_pattern: _ => "..",
+
+    range_pattern: $ => seq(
+      field("start", $.pattern_integer),
+      choice("..", "..="),
+      field("end", $.pattern_integer),
+    ),
+
+    pattern_integer: $ => seq(
+      optional("-"),
+      $.integer,
+    ),
+
+    // Tokens
+
     ellipsis: _ => "...",
 
     boolean: _ => choice("true", "false"),
 
     unit: $ => seq("(", ")"),
 
-    builtin_type: _ => token(choice(
+    builtin_type: _ => choice(
       "Int",
       "Float",
       "Bool",
       "Str",
       "Unit",
       "Any",
-    )),
+    ),
 
+    // A float names its fraction (`1.0`, not `1.`), so `1..5` is a range.
     number: _ => token(choice(
-      /(?:0|[1-9][0-9]*)\.[0-9]*(?:[eE]-?[0-9]+)?/,
+      /[0-9]+\.[0-9]+(?:[eE][+-]?[0-9]+)?/,
+      /[0-9]+[eE][+-]?[0-9]+/,
       /[0-9]+/,
     )),
 
